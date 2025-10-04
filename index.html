@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapyExpense - Smart Expense Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <i class="fas fa-receipt"></i>
+                <span>CapyExpense</span>
+            </div>
+            <div class="loading-spinner"></div>
+            <p>Loading your workspace...</p>
+        </div>
+    </div>
+
+    <!-- Demo Mode Indicator -->
+    <div id="demo-indicator" class="demo-indicator hidden">
+        <div class="demo-badge">
+            <i class="fas fa-play-circle"></i>
+            <span>Demo Mode</span>
+        </div>
+        <div class="demo-actions">
+            <select id="role-switcher" class="role-switcher" onchange="switchDemoRole(this.value)">
+                <option value="Employee">👩‍🎓 Employee View</option>
+                <option value="Manager">👨‍💻 Manager View</option>
+                <option value="Admin">👩‍💼 Admin View</option>
+            </select>
+            <button class="btn btn--sm btn--outline" onclick="exitDemo()" title="Exit Demo">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification hidden">
+        <div class="notification-content">
+            <i class="notification-icon"></i>
+            <span class="notification-message"></span>
+            <button class="notification-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Onboarding Tooltips -->
+    <div id="tooltip" class="tooltip hidden">
+        <div class="tooltip-content">
+            <div class="tooltip-text"></div>
+            <div class="tooltip-actions">
+                <button class="btn btn--sm btn--outline" onclick="previousTip()">Previous</button>
+                <button class="btn btn--sm btn--primary" onclick="nextTip()">Next</button>
+                <button class="btn btn--sm btn--secondary" onclick="skipTour()">Skip Tour</button>
+            </div>
+        </div>
+        <div class="tooltip-arrow"></div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+        <!-- Landing Page -->
+        <div id="landing-page" class="view active">
+            <div class="landing-hero">
+                <div class="hero-background">
+                    <div class="hero-gradient"></div>
+                    <div class="hero-pattern"></div>
+                </div>
+                <div class="container">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <h1 class="hero-title">
+                                <i class="fas fa-receipt hero-icon"></i>
+                                CapyExpense
+                            </h1>
+                            <p class="hero-subtitle">Smart expense management with AI-powered receipt scanning and real-time currency conversion</p>
+                            <div class="hero-features">
+                                <div class="feature-item">
+                                    <i class="fas fa-camera"></i>
+                                    <span>AI Receipt Scanning</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>Real-time Currency</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Smart Approvals</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Advanced Analytics</span>
+                                </div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn--primary btn--lg demo-btn" onclick="startDemo()">
+                                    <i class="fas fa-play"></i>
+                                    Try Interactive Demo
+                                    <small>Experience real OCR & currency APIs</small>
+                                </button>
+                                <button class="btn btn--outline btn--lg" onclick="showSignup()">
+                                    <i class="fas fa-building"></i>
+                                    Start Free Trial
+                                </button>
+                                <button class="btn btn--secondary btn--lg" onclick="showLogin()">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    Sign In
+                                </button>
+                            </div>
+                            <div class="demo-preview">
+                                <p class="demo-preview-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Demo features live OCR processing, real currency rates, approval workflows, and analytics
+                                </p>
+                            </div>
+                        </div>
+                        <div class="hero-visual">
+                            <div class="dashboard-preview">
+                                <div class="preview-mockup">
+                                    <div class="mockup-header">
+                                        <div class="mockup-dots">
+                                            <span></span><span></span><span></span>
+                                        </div>
+                                        <span class="mockup-title">CapyExpense Dashboard</span>
+                                    </div>
+                                    <div class="mockup-content">
+                                        <div class="mockup-stats">
+                                            <div class="mockup-stat">
+                                                <div class="stat-value">$24,847</div>
+                                                <div class="stat-label">Total Expenses</div>
+                                            </div>
+                                            <div class="mockup-stat">
+                                                <div class="stat-value">8</div>
+                                                <div class="stat-label">Pending</div>
+                                            </div>
+                                        </div>
+                                        <div class="mockup-chart"></div>
+                                        <div class="mockup-list">
+                                            <div class="mockup-item"></div>
+                                            <div class="mockup-item"></div>
+                                            <div class="mockup-item"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Forms -->
+        <div id="auth-modal" class="modal hidden">
+            <div class="modal-overlay" onclick="closeModal()"></div>
+            <div class="modal-content auth-modal">
+                <!-- Signup Form -->
+                <div id="signup-form" class="auth-form">
+                    <div class="auth-header">
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                        <h2>Create Your CapyExpense Account</h2>
+                        <p>Set up your smart expense management workspace</p>
+                    </div>
+                    <form class="form" onsubmit="handleSignup(event)">
+                        <div class="form-group">
+                            <label class="form-label">Company Name</label>
+                            <input type="text" class="form-control" name="companyName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Country & Currency</label>
+                            <div class="country-currency-selector">
+                                <select class="form-control" id="country-selector" name="country" required onchange="updateSelectedCurrency()">
+                                    <option value="">Loading countries...</option>
+                                </select>
+                                <div class="currency-info hidden" id="currency-info">
+                                    <div class="selected-currency">
+                                        <i class="fas fa-coins"></i>
+                                        <span id="selected-currency-text">Currency will be set automatically</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Admin Name</label>
+                            <input type="text" class="form-control" name="adminName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Admin Email</label>
+                            <input type="email" class="form-control" name="adminEmail" required>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--full-width">
+                            <i class="fas fa-rocket"></i>
+                            Create CapyExpense Account
+                        </button>
+                    </form>
+                    <div class="auth-footer">
+                        <p>Already have an account? <a href="#" onclick="showLogin()">Sign in</a></p>
+                        <p class="demo-link">
+                            Or <a href="#" onclick="startDemo()">try our interactive demo</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form hidden">
+                    <div class="auth-header">
+                        <button class="modal-close" onclick="closeModal()">&times;</button>
+                        <h2>Welcome Back to CapyExpense</h2>
+                        <p>Sign in to your smart expense account</p>
+                    </div>
+                    <form class="form" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--full-width">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Sign In
+                        </button>
+                    </form>
+                    <div class="auth-footer">
+                        <p>Don't have an account? <a href="#" onclick="showSignup()">Create company</a></p>
+                        <p class="demo-link">
+                            Or <a href="#" onclick="startDemo()">explore with demo</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" class="view dashboard-view">
+            <!-- Navigation Header -->
+            <header class="nav-header">
+                <div class="nav-container">
+                    <div class="nav-brand">
+                        <i class="fas fa-receipt"></i>
+                        <span>CapyExpense</span>
+                    </div>
+                    <nav class="nav-menu">
+                        <button class="nav-item active" data-view="overview" onclick="switchView('overview')" data-tooltip="Dashboard overview with key metrics">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Overview</span>
+                        </button>
+                        <button class="nav-item" data-view="expenses" onclick="switchView('expenses')" data-tooltip="Manage and track all expenses">
+                            <i class="fas fa-receipt"></i>
+                            <span>Expenses</span>
+                        </button>
+                        <button class="nav-item admin-only" data-view="users" onclick="switchView('users')" data-tooltip="Manage team members and permissions">
+                            <i class="fas fa-users"></i>
+                            <span>Users</span>
+                        </button>
+                        <button class="nav-item manager-only" data-view="approvals" onclick="switchView('approvals')" data-tooltip="Review and approve expense requests">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Approvals</span>
+                        </button>
+                        <button class="nav-item admin-only" data-view="workflows" onclick="switchView('workflows')" data-tooltip="Configure approval workflows">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>Workflows</span>
+                        </button>
+                        <button class="nav-item" data-view="analytics" onclick="switchView('analytics')" data-tooltip="Expense insights and trends">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Analytics</span>
+                        </button>
+                    </nav>
+                    <div class="nav-user">
+                        <div class="currency-display" id="currency-display">
+                            <i class="fas fa-coins"></i>
+                            <span id="base-currency">USD</span>
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name" id="current-user-name">Demo User</span>
+                            <span class="user-role" id="current-user-role">Employee</span>
+                        </div>
+                        <div class="user-menu">
+                            <button class="user-avatar" onclick="toggleUserMenu()">
+                                <span id="user-avatar-icon">👩‍🎓</span>
+                            </button>
+                            <div class="user-dropdown hidden" id="user-dropdown">
+                                <a href="#" onclick="startTour()">
+                                    <i class="fas fa-question-circle"></i>
+                                    Take Tour
+                                </a>
+                                <a href="#" onclick="showSettings()">
+                                    <i class="fas fa-cog"></i>
+                                    Settings
+                                </a>
+                                <a href="#" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Exit Demo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="dashboard-content">
+                <!-- Overview -->
+                <div id="overview-view" class="dashboard-section active">
+                    <div class="section-header">
+                        <div class="header-content">
+                            <h2>Dashboard Overview</h2>
+                            <p>Welcome back! Here's what's happening with your expenses.</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn--sm btn--outline" onclick="startTour()" data-tooltip="Take a guided tour">
+                                <i class="fas fa-question-circle"></i>
+                                Help
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="total-expenses">$0</h3>
+                                <p>Total Expenses</p>
+                                <span class="stat-change positive">+12.5% from last month</span>
+                            </div>
+                            <button class="stat-help" data-tooltip="Total amount of all submitted expenses">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="pending-approvals">0</h3>
+                                <p>Pending Approvals</p>
+                                <span class="stat-change neutral">Awaiting review</span>
+                            </div>
+                            <button class="stat-help" data-tooltip="Expenses waiting for manager approval">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="processing-time">2.3 hours</h3>
+                                <p>Avg Processing Time</p>
+                                <span class="stat-change positive">-15% improvement</span>
+                            </div>
+                            <button class="stat-help" data-tooltip="Average time from submission to approval">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="stat-card info">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="active-users">3</h3>
+                                <p>Team Members</p>
+                                <span class="stat-change positive">Growing team</span>
+                            </div>
+                            <button class="stat-help" data-tooltip="Active users in your organization">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <div class="card-header">
+                                <h3>Recent Expenses</h3>
+                                <button class="btn btn--sm btn--outline" onclick="switchView('expenses')">View All</button>
+                            </div>
+                            <div class="expense-list" id="recent-expenses">
+                                <!-- Recent expenses will be populated here -->
+                            </div>
+                        </div>
+
+                        <div class="overview-card">
+                            <div class="card-header">
+                                <h3>Category Breakdown</h3>
+                                <button class="btn btn--sm btn--outline" onclick="switchView('analytics')">View Details</button>
+                            </div>
+                            <div class="category-chart" style="position: relative; height: 250px;">
+                                <canvas id="category-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses View -->
+                <div id="expenses-view" class="dashboard-section">
+                    <div class="section-header">
+                        <div class="header-content">
+                            <h2>Expense Management</h2>
+                            <p>Submit, track, and manage your business expenses</p>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn btn--primary" onclick="showExpenseForm()">
+                                <i class="fas fa-plus"></i>
+                                New Expense
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Expense Filters -->
+                    <div class="expense-filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select class="form-control" id="status-filter" onchange="filterExpenses()">
+                                <option value="">All Status</option>
+                                <option value="Pending Approval">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Category</label>
+                            <select class="form-control" id="category-filter" onchange="filterExpenses()">
+                                <option value="">All Categories</option>
+                                <option value="Travel & Transportation">Travel & Transportation</option>
+                                <option value="Meals & Entertainment">Meals & Entertainment</option>
+                                <option value="Office Supplies">Office Supplies</option>
+                                <option value="Software & Subscriptions">Software & Subscriptions</option>
+                                <option value="Training & Education">Training & Education</option>
+                                <option value="Communication">Communication</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Date</label>
+                            <input type="date" class="form-control" id="date-filter" onchange="filterExpenses()">
+                        </div>
+                    </div>
+
+                    <!-- Expenses Table -->
+                    <div class="expense-table-container">
+                        <table class="expense-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Employee</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expenses-table-body">
+                                <!-- Expenses will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Users Management (Admin Only) -->
+                <div id="users-view" class="dashboard-section">
+                    <div class="section-header">
+                        <div class="header-content">
+                            <h2>Team Management</h2>
+                            <p>Manage your team members and their permissions</p>
+                        </div>
+                        <div class="section-actions">
+                            <button class="btn btn--primary" onclick="showUserForm()">
+                                <i class="fas fa-user-plus"></i>
+                                Add Team Member
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="users-grid" id="users-grid">
+                        <!-- Users will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Approvals (Manager/Admin Only) -->
+                <div id="approvals-view" class="dashboard-section">
+                    <div class="section-header">
+                        <div class="header-content">
+                            <h2>Expense Approvals</h2>
+                            <p>Review and approve expense requests from your team</p>
+                        </div>
+                    </div>
+
+                    <div class="approval-queue" id="approval-queue">
+                        <!-- Pending approvals will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Workflows (Admin Only) -->
+                <div id="workflows-view" class="dashboard-section">
+                    <div class="section-header">
+                        <div class="header-content">
+                            <h2>Approval Workflows</h2>
+                            <p>Configure approval rules and workflows for your organization</p>
+                        </div>
+                    </div>
+
+                    <div class="workflow-cards">
+                        <div class="workflow-card">
+                            <div class="workflow-header">
+                                <h3>Sequential Approval</h3>
+                                <span class="workflow-status active">Active</span>
+                            </div>
+                            <p>Manager → Finance → Director approval chain</p>
+                            <div class="workflow-visual">
+                                <div class="workflow-steps">
+                                    <div class="workflow-step">
+                                        <div class="step-icon">👨‍💻</div>
+                                        <div class="step-label">Manager</div>
+                                    </div>
+                                    <div class="workflow-arrow">→</div>
+                                    <div class="workflow-step">
+                                        <div class="step-icon">💰</div>
+                                        <div class="step-label">Finance</div>
+                                    </div>
+                                    <div class="workflow-arrow">→</div>
+                                    <div class="workflow-step">
+                                        <div class="step-icon">👩‍💼</div>
+                                        <div class="step-label">Director</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn--outline">Configure</button>
+                        </div>
+
+                        <div class="workflow-card">
+                            <div class="workflow-header">
+                                <h3>Smart Rules</h3>
+                                <span class="workflow-status active">Active</span>
+                            </div>
+                            <p>AI-powered approval rules with currency conversion</p>
+                            <div class="rule-list">
+                                <div class="rule-item">
+                                    <span>Amount > $500 USD</span>
+                                    <span class="rule-action">Requires Finance Approval</span>
+                                </div>
+                                <div class="rule-item">
+                                    <span>Foreign Currency</span>
+                                    <span class="rule-action">Auto-convert to base</span>
+                                </div>
+                                <div class="rule-item">
+                                    <span>OCR Confidence < 90%</span>
+                                    <span class="rule-action">Manual Review</span>
+                                </div>
+                            </div>
+                            <button class="btn btn--outline">Edit Rules</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics -->
+                <div id="analytics-view" class="dashboard-section">
+                    <div class="section-header">
+                        <div class="header-content">
+                            <h2>Expense Analytics</h2>
+                            <p>Insights and trends from your expense data</p>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <h3>Monthly Spending Trends</h3>
+                                <div class="chart-controls">
+                                    <select class="form-control form-control--sm">
+                                        <option>Last 6 months</option>
+                                        <option>Last 12 months</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="position: relative; height: 300px;">
+                                <canvas id="monthly-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="analytics-card">
+                            <div class="card-header">
+                                <h3>Category Budget vs Spend</h3>
+                                <button class="btn btn--sm btn--outline" data-tooltip="Export report">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                            <div class="category-budget-list" id="category-budget-list">
+                                <!-- Category budget data will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Expense Form Modal -->
+    <div id="expense-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content expense-modal">
+            <div class="modal-header">
+                <h3>Submit New Expense</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form class="form" onsubmit="handleExpenseSubmit(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Amount *</label>
+                        <input type="number" class="form-control" name="amount" step="0.01" required min="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Currency</label>
+                        <select class="form-control" name="currency" required onchange="updateCurrencyConversion(this)">
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            <option value="CNY">CNY - Chinese Yuan</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="currency-conversion" class="currency-conversion hidden">
+                    <div class="conversion-info">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Converted amount: <strong id="converted-amount">$0.00</strong></span>
+                        <small id="exchange-rate"></small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <select class="form-control" name="category" required>
+                        <option value="">Select Category</option>
+                        <option value="Travel & Transportation">🚗 Travel & Transportation</option>
+                        <option value="Meals & Entertainment">🍽️ Meals & Entertainment</option>
+                        <option value="Office Supplies">📋 Office Supplies</option>
+                        <option value="Software & Subscriptions">💻 Software & Subscriptions</option>
+                        <option value="Training & Education">📚 Training & Education</option>
+                        <option value="Communication">📞 Communication</option>
+                        <option value="Marketing">📢 Marketing</option>
+                        <option value="Other">📦 Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date *</label>
+                    <input type="date" class="form-control" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-control" name="description" rows="3" placeholder="Describe your expense..." required minlength="10"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Receipt (AI-Powered OCR)</label>
+                    <div class="receipt-upload">
+                        <input type="file" id="receipt-file" accept="image/*" onchange="processReceiptWithOCR(event)">
+                        <div class="upload-area" onclick="document.getElementById('receipt-file').click()">
+                            <i class="fas fa-camera"></i>
+                            <p>Scan Receipt with AI</p>
+                            <small>Automatically extracts expense details using real OCR</small>
+                        </div>
+                        <div id="ocr-preview" class="ocr-preview hidden">
+                            <div class="ocr-results">
+                                <h4 id="ocr-status">📸 Processing with AI...</h4>
+                                <div class="ocr-data" id="ocr-data"></div>
+                                <div class="ocr-confidence hidden">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span id="confidence-score">--% confidence</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn--outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn--primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit for Approval
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Form Modal -->
+    <div id="user-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Team Member</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form class="form" onsubmit="handleUserCreate(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" name="name" required minlength="2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address *</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role *</label>
+                    <select class="form-control" name="role" required>
+                        <option value="Employee">👩‍🎓 Employee</option>
+                        <option value="Manager">👨‍💻 Manager</option>
+                        <option value="Admin">👩‍💼 Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reports to (Manager)</label>
+                    <select class="form-control" name="managerId">
+                        <option value="">Select Manager (Optional)</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn--outline" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn--primary">
+                        <i class="fas fa-user-plus"></i>
+                        Add Team Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
