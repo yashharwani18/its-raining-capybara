@@ -23,6 +23,5 @@ Welcome to **CapyExpense** — your ultimate expense management solution designe
 - Hosting: GitHub Pages (static frontend) or cloud servers for full-stack deployments ☁️
 
 ## Getting Started 🏁
-
-
+https://youtu.be/93sBX3ORF7g
 
